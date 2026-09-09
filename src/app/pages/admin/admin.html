@@ -1,0 +1,171 @@
+<main class="admin-container">
+  @if (!loggedIn) {
+    <mat-card class="login-card">
+      <mat-card-header>
+        <mat-card-title>Admin Login</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="login-help">Use these generated credentials to sign in.</p>
+        <div class="credentials-box">
+          <p><strong>Username:</strong> {{ adminUsername }}</p>
+          <p><strong>Password:</strong> {{ adminPassword }}</p>
+          <button mat-stroked-button type="button" (click)="copyPassword()">
+            {{ passwordCopied ? 'Password copied' : 'Copy password' }}
+          </button>
+        </div>
+        <form class="login-form" [formGroup]="loginForm" (ngSubmit)="login()">
+          <mat-form-field>
+            <mat-label>Username</mat-label>
+            <input matInput formControlName="username" autocomplete="username">
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password" autocomplete="current-password">
+            @if (loginForm.controls.password.hasError('required')) {
+              <mat-error>Password is required</mat-error>
+            }
+          </mat-form-field>
+          @if (loginError) {
+            <p class="error-message">{{ loginError }}</p>
+          }
+          <button mat-flat-button color="primary" type="submit" [disabled]="loading">
+            {{ loading ? 'Signing in...' : 'Login' }}
+          </button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <section class="admin-header">
+      <h1>Bookings</h1>
+      <div class="admin-actions">
+        <button mat-stroked-button type="button" (click)="refreshOrders()">Refresh</button>
+        <button mat-flat-button color="primary" type="button" (click)="logout()">Logout</button>
+      </div>
+    </section>
+
+    <section class="cars-section">
+      <div class="section-header">
+        <h2>Cars</h2>
+        <button mat-flat-button color="primary" type="button" (click)="showAddCarForm()">
+          Add car
+        </button>
+      </div>
+
+      @if (carFormVisible) {
+        <mat-card class="car-form-card">
+          <mat-card-header>
+            <mat-card-title>{{ editingCarId === null ? 'Add car' : 'Edit car' }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form class="car-form" [formGroup]="carForm" (ngSubmit)="saveCar()">
+              <mat-form-field>
+                <mat-label>Brand</mat-label>
+                <input matInput formControlName="brand">
+                @if (carForm.controls.brand.hasError('required')) {
+                  <mat-error>Brand is required</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Model</mat-label>
+                <input matInput formControlName="model">
+                @if (carForm.controls.model.hasError('required')) {
+                  <mat-error>Model is required</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Year</mat-label>
+                <input matInput type="number" formControlName="year">
+                @if (carForm.controls.year.hasError('required')) {
+                  <mat-error>Year is required</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Daily price</mat-label>
+                <input matInput type="number" formControlName="dailyPrice">
+                @if (carForm.controls.dailyPrice.hasError('required')) {
+                  <mat-error>Daily price is required</mat-error>
+                }
+              </mat-form-field>
+              <div class="image-upload-field">
+                <label for="car-image">Car image (optional)</label>
+                <input id="car-image" type="file" accept="image/*" (change)="onImageSelected($event)">
+                @if (selectedImage) {
+                  <img class="image-preview" [src]="selectedImage" alt="Selected car preview">
+                }
+              </div>
+              @if (carError) {
+                <p class="error-message">{{ carError }}</p>
+              }
+              <div class="car-form-actions">
+                <button mat-flat-button color="primary" type="submit">Save car</button>
+                <button mat-stroked-button type="button" (click)="closeCarForm()">Cancel</button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      @if (carsLoading) {
+        <mat-card class="empty-card">
+          <mat-card-content>Loading cars...</mat-card-content>
+        </mat-card>
+      } @else if (cars.length === 0) {
+        <mat-card class="empty-card">
+          <mat-card-content>No cars have been added yet.</mat-card-content>
+        </mat-card>
+      } @else {
+        <div class="cars-list">
+          @for (car of cars; track car.id) {
+            <mat-card class="car-card">
+              <mat-card-content>
+                <div>
+                  <strong>{{ car.brand }} {{ car.model }}</strong>
+                  <span>{{ car.year }} · {{ car.dailyPrice | currency:'EUR':'symbol':'1.0-0' }} / day</span>
+                </div>
+                <button mat-stroked-button type="button" (click)="editCar(car)">Edit</button>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      }
+    </section>
+
+    @if (ordersLoading) {
+      <mat-card class="empty-card">
+        <mat-card-content>Loading bookings...</mat-card-content>
+      </mat-card>
+    } @else if (orders.length === 0) {
+      <mat-card class="empty-card">
+        <mat-card-content>No bookings have been submitted yet.</mat-card-content>
+      </mat-card>
+    } @else {
+      <div class="orders-list">
+        @for (order of orders; track order.id) {
+          <mat-card class="order-card">
+            <mat-card-header>
+              <mat-card-title>{{ order.car }}</mat-card-title>
+              <mat-card-subtitle>{{ order.startDate }} - {{ order.endDate }}</mat-card-subtitle>
+              <button
+                mat-icon-button
+                type="button"
+                class="delete-order-button"
+                aria-label="Delete booking"
+                title="Delete booking"
+                (click)="deleteOrder(order)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-card-header>
+            <mat-card-content>
+              <p><strong>Customer:</strong> {{ order.name }}</p>
+              <p><strong>Email:</strong> {{ order.email }}</p>
+              <p><strong>Address:</strong> {{ order.address }}</p>
+              <p><strong>Phone:</strong> {{ order.phone }}</p>
+              <p><strong>Days:</strong> {{ order.rentalDays }}</p>
+              <p><strong>Total:</strong> {{ order.totalPrice | currency:'EUR':'symbol':'1.0-0' }}</p>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    }
+  }
+</main>

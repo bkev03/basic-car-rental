@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { ChangeDetectorRef } from '@angular/core';
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCard, MatCardModule } from '@angular/material/card';
@@ -8,6 +8,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { Car, RentalOrder, RentalStore } from '../../shared/rental-store.service';
 
 @Component({
   imports: [
@@ -17,6 +19,7 @@ import { MatInputModule } from '@angular/material/input';
     MatFormFieldModule,
     MatDatepickerModule,
     MatInputModule,
+    MatIconModule,
     FormsModule,
     ReactiveFormsModule,
     CurrencyPipe,
@@ -34,6 +37,8 @@ export class Home {
   selectedCar: Car | null = null;
   orderSubmitted = false;
   bookingError = '';
+  isSubmitting = false;
+  private orders: RentalOrder[] = [];
 
   readonly range = new FormGroup({
     start: new FormControl<Date | null>(null),
@@ -53,8 +58,11 @@ export class Home {
     }),
   });
 
-  constructor(private readonly http: HttpClient) {
-    this.http.get<Car[]>('/cars.json').subscribe({
+  constructor(
+    private readonly rentalStore: RentalStore,
+    private readonly changeDetector: ChangeDetectorRef
+  ) {
+    this.rentalStore.getCars().subscribe({
       next: cars => {
         this.cars.push(...cars);
         this.loading = false;
@@ -64,6 +72,14 @@ export class Home {
         this.loading = false;
         this.error = true;
       }
+    });
+
+    this.rentalStore.getOrders().subscribe({
+      next: orders => {
+        this.orders = orders;
+        this.updateResults();
+      },
+      error: () => this.bookingError = 'The booking service is not available.'
     });
 
     this.range.valueChanges.subscribe(() => {
@@ -95,19 +111,19 @@ export class Home {
 
   submitBooking(): void {
     this.bookingError = '';
+    this.orderSubmitted = false;
+    if (this.isSubmitting) {
+      return;
+    }
+
     if (!this.selectedCar || this.rentalDays <= 0 || this.bookingForm.invalid) {
       this.bookingForm.markAllAsTouched();
       return;
     }
 
-    const existingOrders = this.readOrders();
-    if (this.hasOverlappingOrder(this.selectedCar.id, this.range.value.start!, this.range.value.end!, existingOrders)) {
-      this.bookingError = 'This car is no longer available for the selected period.';
-      return;
-    }
+    this.isSubmitting = true;
 
     const order = {
-      id: Date.now(),
       carId: this.selectedCar.id,
       car: `${this.selectedCar.brand} ${this.selectedCar.model}`,
       startDate: this.formatDate(this.range.value.start!),
@@ -117,8 +133,35 @@ export class Home {
       totalPrice: this.totalPrice,
     };
 
-    localStorage.setItem('rentalOrders', JSON.stringify([...existingOrders, order]));
-    this.orderSubmitted = true;
+    this.rentalStore.getOrders().subscribe({
+      next: orders => {
+        if (this.hasOverlappingOrder(this.selectedCar!.id, this.range.value.start!, this.range.value.end!, orders)) {
+          this.bookingError = 'This car is no longer available for the selected period.';
+          this.isSubmitting = false;
+          this.changeDetector.detectChanges();
+          return;
+        }
+
+        this.rentalStore.addOrder(order).subscribe({
+          next: savedOrder => {
+            this.orders = [...orders, savedOrder];
+            this.orderSubmitted = true;
+            this.isSubmitting = false;
+            this.changeDetector.detectChanges();
+          },
+          error: () => {
+            this.bookingError = 'The booking could not be submitted. Please try again.';
+            this.isSubmitting = false;
+            this.changeDetector.detectChanges();
+          }
+        });
+      },
+      error: () => {
+        this.bookingError = 'The booking service is not available. Start the mock server first.';
+        this.isSubmitting = false;
+        this.changeDetector.detectChanges();
+      }
+    });
   }
 
   private updateResults(): void {
@@ -131,11 +174,10 @@ export class Home {
 
     const selectedStart = this.toDateOnly(start);
     const selectedEnd = this.toDateOnly(end);
-    const existingOrders = this.readOrders();
     this.filteredCars = this.cars.filter(car =>
       car.unavailablePeriods.every(period =>
         selectedEnd < this.toDateOnly(period.start) || selectedStart > this.toDateOnly(period.end)
-      ) && !this.hasOverlappingOrder(car.id, start, end, existingOrders)
+      ) && !this.hasOverlappingOrder(car.id, start, end, this.orders)
     );
 
     if (this.selectedCar && !this.filteredCars.some(car => car.id === this.selectedCar?.id)) {
@@ -143,16 +185,7 @@ export class Home {
     }
   }
 
-  private readOrders(): RentalOrder[] {
-    try {
-      const savedOrders = localStorage.getItem('rentalOrders');
-      return savedOrders ? JSON.parse(savedOrders) as RentalOrder[] : [];
-    } catch {
-      return [];
-    }
-  }
-
-  private hasOverlappingOrder(carId: number, start: Date, end: Date, orders: RentalOrder[]): boolean {
+  private hasOverlappingOrder(carId: number | string, start: Date, end: Date, orders: RentalOrder[]): boolean {
     const selectedStart = this.toDateOnly(start);
     const selectedEnd = this.toDateOnly(end);
 
@@ -180,30 +213,4 @@ export class Home {
   }
 }
 
-interface Car {
-  id: number;
-  brand: string;
-  model: string;
-  year: number;
-  dailyPrice: number;
-  unavailablePeriods: DatePeriod[];
-}
 
-interface DatePeriod {
-  start: string;
-  end: string;
-}
-
-interface RentalOrder {
-  id: number;
-  carId: number;
-  car: string;
-  startDate: string;
-  endDate: string;
-  name: string;
-  email: string;
-  address: string;
-  phone: string;
-  rentalDays: number;
-  totalPrice: number;
-}

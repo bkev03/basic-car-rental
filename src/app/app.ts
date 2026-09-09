@@ -6,6 +6,7 @@ import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { RentalStore } from './shared/rental-store.service';
 
 @Component({
   imports: [
@@ -25,8 +26,8 @@ import { MatIconModule } from '@angular/material/icon';
 export class App {
   protected readonly title = signal('basic-car-rental');
 
-  ngOnInit(): void {
-
+  constructor(rentalStore: RentalStore) {
+    void rentalStore;
   }
 
   onToggleSidenav(sidenav: MatSidenav): void {

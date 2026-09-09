@@ -7,14 +7,14 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/home/home').then(m => m.Home)
     },
     {
-        path: 'rent',
-        title: 'Basic Car Rental - Rent Car',
-        loadComponent: () => import('./pages/rent/rent').then(m => m.Rent)
-    },
-    {
         path: 'about',
         title: 'Basic Car Rental - About Us',
         loadComponent: () => import('./pages/about/about').then(m => m.About)
+    },
+    {
+        path: 'admin',
+        title: 'Basic Car Rental - Admin',
+        loadComponent: () => import('./pages/admin/admin').then(m => m.Admin)
     },
     {
         path: '',
