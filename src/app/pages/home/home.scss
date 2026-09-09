@@ -1,0 +1,195 @@
+.welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 16px 48px;
+}
+
+.welcome-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(100%, 760px);
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 4px 20px;
+}
+
+.welcome {
+    text-align: center;
+    font-size: 35px;
+    font-weight: bold;
+    margin-bottom: 25px;
+    max-width: 100%;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.site-info {
+    font-size: 20px;
+    text-align: center;
+}
+
+.about-us,
+.search-section {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.search-section h2 {
+    margin-bottom: 12px;
+}
+
+.form-field {
+    width: min(100%, 420px);
+}
+
+.results {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    width: 100%;
+}
+
+.results-card {
+    width: min(100%, 760px);
+    box-sizing: border-box;
+    box-shadow: 0 4px 20px;
+}
+
+.results-card-header {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 500;
+    margin-top: 20px;
+}
+
+.hr {
+    margin-top: 20px;
+    width: 80%;
+}
+
+.table-content {
+    overflow-x: auto;
+    text-align: center;
+}
+
+.car-result {
+    padding: 12px 0 20px;
+    border-bottom: 1px solid rgba(27, 53, 112, 0.18);
+}
+
+.car-result:last-child {
+    border-bottom: 0;
+}
+
+.booking-card {
+    width: min(100%, 760px);
+    box-sizing: border-box;
+    margin-top: 30px;
+    box-shadow: 0 4px 20px;
+}
+
+.booking-card-header {
+    justify-content: center;
+    text-align: center;
+}
+
+.booking-card-header mat-card-title {
+    width: 100%;
+}
+
+.booking-summary {
+    text-align: center;
+}
+
+.booking-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 16px;
+}
+
+.booking-form mat-form-field {
+    width: 100%;
+}
+
+.submit-booking {
+    grid-column: 1 / -1;
+    justify-self: center;
+}
+
+.booking-success {
+    color: #176b3a;
+    text-align: center;
+    font-weight: 500;
+}
+
+.booking-error {
+    color: #a62020;
+    text-align: center;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .welcome-card {
+        width: calc(100% - 32px);
+    }
+
+    .site-info {
+        max-width: 85vw;
+    }
+
+    .form-field {
+        width: min(100%, 360px);
+    }
+
+    .results-card {
+        width: calc(100% - 32px);
+    }
+
+    .booking-card {
+        width: calc(100% - 32px);
+    }
+
+    .booking-form {
+        grid-template-columns: 1fr;
+    }
+
+    .submit-booking {
+        grid-column: auto;
+    }
+}
+
+.car-image,
+.missing-car-image {
+    display: block;
+    width: 180px;
+    height: 110px;
+    margin: 0 auto 12px;
+    object-fit: cover;
+}
+
+.missing-car-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(27, 53, 112, 0.55);
+    background-color: rgba(27, 53, 112, 0.08);
+}
+
+.missing-car-image mat-icon {
+    font-size: 42px;
+    width: 42px;
+    height: 42px;
+}
