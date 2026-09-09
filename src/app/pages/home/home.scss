@@ -1,0 +1,40 @@
+.welcome-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50vw;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 4px 20px;
+}
+
+.welcome {
+    text-align: center;
+    font-size: 35px;
+    font-weight: bold;
+    margin-bottom: 25px;
+    max-width: 100%;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.site-info {
+    font-size: 20px;
+    text-align: center;
+}
+
+.search-cars-btn {
+    margin-top: 15px;
+    font-size: 20px;
+}
+
+@media (max-width: 768px) {
+    .welcome-card {
+        width: 80%;
+    }
+
+    .site-info {
+        max-width: 85vw;
+    }
+}
