@@ -8,6 +8,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 import { Car, RentalOrder, RentalStore } from '../../shared/rental-store.service';
 
 @Component({
@@ -18,6 +19,7 @@ import { Car, RentalOrder, RentalStore } from '../../shared/rental-store.service
     MatFormFieldModule,
     MatDatepickerModule,
     MatInputModule,
+    MatIconModule,
     FormsModule,
     ReactiveFormsModule,
     CurrencyPipe,

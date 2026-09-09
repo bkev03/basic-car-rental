@@ -115,6 +115,18 @@
     width: 100%;
 }
 
+.image-upload-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.image-preview {
+    width: 140px;
+    height: 90px;
+    object-fit: cover;
+}
+
 .car-form .error-message,
 .car-form-actions {
     grid-column: 1 / -1;

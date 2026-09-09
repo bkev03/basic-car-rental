@@ -22,6 +22,7 @@ export interface Car {
   model: string;
   year: number;
   dailyPrice: number;
+  image?: string;
   unavailablePeriods: DatePeriod[];
 }
 

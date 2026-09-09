@@ -39,6 +39,7 @@ export class Admin {
   carsLoading = false;
   carFormVisible = false;
   editingCarId: number | string | null = null;
+  selectedImage = '';
 
   readonly carForm = new FormGroup({
     brand: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -120,6 +121,7 @@ export class Admin {
 
   showAddCarForm(): void {
     this.editingCarId = null;
+    this.selectedImage = '';
     this.carError = '';
     this.carForm.reset();
     this.carFormVisible = true;
@@ -134,12 +136,29 @@ export class Admin {
       year: car.year,
       dailyPrice: car.dailyPrice,
     });
+    this.selectedImage = car.image ?? '';
     this.carFormVisible = true;
+  }
+
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.selectedImage = typeof reader.result === 'string' ? reader.result : '';
+      this.changeDetector.detectChanges();
+    };
+    reader.readAsDataURL(file);
   }
 
   closeCarForm(): void {
     this.carFormVisible = false;
     this.editingCarId = null;
+    this.selectedImage = '';
     this.carError = '';
     this.carForm.reset();
   }
@@ -158,6 +177,7 @@ export class Admin {
       model: values.model,
       year: values.year!,
       dailyPrice: values.dailyPrice!,
+        ...(this.selectedImage ? { image: this.selectedImage } : {}),
       unavailablePeriods: existingCar?.unavailablePeriods ?? [],
     };
 

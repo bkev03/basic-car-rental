@@ -54,6 +54,13 @@
           <div class="table-content">
             @for (car of filteredCars; track car.id) {
               <div class="car-result">
+                @if (car.image) {
+                  <img class="car-image" [src]="car.image" [alt]="car.brand + ' ' + car.model">
+                } @else {
+                  <div class="missing-car-image" aria-label="Image not available">
+                    <mat-icon>image_not_supported</mat-icon>
+                  </div>
+                }
                 <p>
                   <strong>{{ car.brand }} {{ car.model }}</strong>
                   ({{ car.year }}) - {{ car.dailyPrice | currency:'EUR':'symbol':'1.0-0' }} / day

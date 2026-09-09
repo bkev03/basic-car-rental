@@ -86,6 +86,13 @@
                   <mat-error>Daily price is required</mat-error>
                 }
               </mat-form-field>
+              <div class="image-upload-field">
+                <label for="car-image">Car image (optional)</label>
+                <input id="car-image" type="file" accept="image/*" (change)="onImageSelected($event)">
+                @if (selectedImage) {
+                  <img class="image-preview" [src]="selectedImage" alt="Selected car preview">
+                }
+              </div>
               @if (carError) {
                 <p class="error-message">{{ carError }}</p>
               }
