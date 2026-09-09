@@ -17,6 +17,11 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/about/about').then(m => m.About)
     },
     {
+        path: 'admin',
+        title: 'Basic Car Rental - Admin',
+        loadComponent: () => import('./pages/admin/admin').then(m => m.Admin)
+    },
+    {
         path: '',
         redirectTo: 'home',
         pathMatch: 'full'

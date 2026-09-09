@@ -34,6 +34,11 @@
     <mat-card appearance="outlined" class="results-card">
       <mat-card-header class="results-card-header">Results</mat-card-header>
       <hr class="hr">
+      @if (bookingError) {
+        <mat-card-content>
+          <p class="booking-error">{{ bookingError }}</p>
+        </mat-card-content>
+      }
       @if (loading) {
         <mat-card-content>Loading cars...</mat-card-content>
       } @else if (error) {
@@ -122,8 +127,8 @@
             <input matInput [value]="totalPrice | currency:'EUR':'symbol':'1.0-0'" readonly>
           </mat-form-field>
 
-          <button class="submit-booking" mat-flat-button color="primary" type="submit">
-            Submit booking
+          <button class="submit-booking" mat-flat-button color="primary" type="submit" [disabled]="isSubmitting">
+            {{ isSubmitting ? 'Submitting...' : 'Submit booking' }}
           </button>
         </form>
 
