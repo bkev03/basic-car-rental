@@ -1,6 +1,6 @@
 <mat-sidenav-container>
   <mat-sidenav #sidenav>
-    <app-menu></app-menu>
+    <app-menu [sidenav]="sidenav"></app-menu>
   </mat-sidenav>
   <mat-sidenav-content>
     <mat-toolbar>
@@ -11,7 +11,7 @@
       <nav>
         <ul class="navbar">
           <li><a class="navbar-element" routerLink="/home">Home</a></li>
-          <li><a class="navbar-element" routerLink="/search">Search Cars</a></li>
+          <li><a class="navbar-element" routerLink="/about">About Us</a></li>
         </ul>
       </nav>
     </mat-toolbar>

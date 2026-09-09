@@ -1,0 +1,34 @@
+.about-container {
+    display: flex;
+    justify-content: center;
+    padding: 0 16px;
+}
+
+.about-card {
+    width: min(100%, 760px);
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 4px 20px;
+}
+
+.about-card mat-card-title {
+    text-align: center;
+    width: 100%;
+}
+
+.about-card mat-card-header {
+    justify-content: center;
+    text-align: center;
+}
+
+.about-card mat-card-content {
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .about-card {
+        padding: 12px;
+    }
+}

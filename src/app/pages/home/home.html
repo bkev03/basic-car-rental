@@ -5,13 +5,135 @@
     </mat-card-header>
 
     <mat-card-content class="site-info">
-      You can rent cheap cars here.
-      <br>
+      You can rent affordable cars for your next trip.
     </mat-card-content>
 
-    <mat-card-content>
-    <button class="search-cars-btn" mat-flat-button color="primary" [routerLink]="['/search']">Search Cars</button>
+    <mat-card-content class="search-section">
+      <h2>Find an available car</h2>
+      <mat-form-field class="form-field">
+        <mat-label>Enter a date range</mat-label>
+        <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+          <input matStartDate formControlName="start" placeholder="Start date">
+          <input matEndDate formControlName="end" placeholder="End date">
+        </mat-date-range-input>
+        <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+
+        @if (range.controls.start.hasError('matStartDateInvalid')) {
+          <mat-error>Invalid start date</mat-error>
+        }
+        @if (range.controls.end.hasError('matEndDateInvalid')) {
+          <mat-error>Invalid end date</mat-error>
+        }
+      </mat-form-field>
     </mat-card-content>
-    
   </mat-card>
+
+  <div class="results">
+    <mat-card appearance="outlined" class="results-card">
+      <mat-card-header class="results-card-header">Results</mat-card-header>
+      <hr class="hr">
+      @if (loading) {
+        <mat-card-content>Loading cars...</mat-card-content>
+      } @else if (error) {
+        <mat-card-content>Could not load cars.</mat-card-content>
+      } @else if (!range.value.start || !range.value.end) {
+        <mat-card-content>Select a date range to see available cars.</mat-card-content>
+      } @else if (rentalDays <= 0) {
+        <mat-card-content>Select a rental period of at least one day.</mat-card-content>
+      } @else if (filteredCars.length === 0) {
+        <mat-card-content>No cars are available for the selected period.</mat-card-content>
+      } @else {
+        <mat-card-content>
+          <div class="table-content">
+            @for (car of filteredCars; track car.id) {
+              <div class="car-result">
+                <p>
+                  <strong>{{ car.brand }} {{ car.model }}</strong>
+                  ({{ car.year }}) - {{ car.dailyPrice | currency:'EUR':'symbol':'1.0-0' }} / day
+                </p>
+                <button mat-flat-button color="primary" type="button" (click)="selectCar(car)">
+                  Reserve this car
+                </button>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      }
+    </mat-card>
+  </div>
+
+  @if (selectedCar) {
+    <mat-card class="booking-card">
+      <mat-card-header class="booking-card-header">
+        <mat-card-title>Reserve {{ selectedCar.brand }} {{ selectedCar.model }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="booking-summary">
+          {{ rentalDays }} days x {{ selectedCar.dailyPrice | currency:'EUR':'symbol':'1.0-0' }} /
+          day = <strong>{{ totalPrice | currency:'EUR':'symbol':'1.0-0' }}</strong>
+        </p>
+
+        <form class="booking-form" [formGroup]="bookingForm" (ngSubmit)="submitBooking()">
+          <mat-form-field>
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name">
+            @if (bookingForm.controls.name.hasError('required')) {
+              <mat-error>Name is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email">
+            @if (bookingForm.controls.email.hasError('required')) {
+              <mat-error>Email is required</mat-error>
+            } @else if (bookingForm.controls.email.hasError('email')) {
+              <mat-error>Enter a valid email</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Address</mat-label>
+            <input matInput formControlName="address">
+            @if (bookingForm.controls.address.hasError('required')) {
+              <mat-error>Address is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Phone number</mat-label>
+            <input matInput type="tel" formControlName="phone">
+            @if (bookingForm.controls.phone.hasError('required')) {
+              <mat-error>Phone number is required</mat-error>
+            } @else if (bookingForm.controls.phone.hasError('pattern')) {
+              <mat-error>Enter a valid phone number</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Rental days</mat-label>
+            <input matInput [value]="rentalDays" readonly>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Total price</mat-label>
+            <input matInput [value]="totalPrice | currency:'EUR':'symbol':'1.0-0'" readonly>
+          </mat-form-field>
+
+          <button class="submit-booking" mat-flat-button color="primary" type="submit">
+            Submit booking
+          </button>
+        </form>
+
+        @if (orderSubmitted) {
+          <p class="booking-success">Your booking has been submitted successfully.</p>
+        }
+        @if (bookingError) {
+          <p class="booking-error">{{ bookingError }}</p>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
 </main>
