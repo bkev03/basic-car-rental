@@ -5,7 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { RentalOrder, RentalStore } from '../../shared/rental-store.service';
+import { MatIconModule } from '@angular/material/icon';
+import { Car, RentalOrder, RentalStore } from '../../shared/rental-store.service';
 
 @Component({
   imports: [
@@ -14,6 +15,7 @@ import { RentalOrder, RentalStore } from '../../shared/rental-store.service';
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
+    MatIconModule,
     ReactiveFormsModule
   ],
   selector: 'app-admin',
@@ -27,11 +29,23 @@ export class Admin {
   });
 
   orders: RentalOrder[] = [];
+  cars: Car[] = [];
   loginError = '';
+  carError = '';
   loading = false;
   loggedIn = false;
   passwordCopied = false;
   ordersLoading = false;
+  carsLoading = false;
+  carFormVisible = false;
+  editingCarId: number | string | null = null;
+
+  readonly carForm = new FormGroup({
+    brand: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    model: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    year: new FormControl<number | null>(null, { validators: [Validators.required, Validators.min(1900)] }),
+    dailyPrice: new FormControl<number | null>(null, { validators: [Validators.required, Validators.min(1)] }),
+  });
 
   constructor(
     private readonly rentalStore: RentalStore,
@@ -74,17 +88,94 @@ export class Admin {
     this.loggedIn = true;
     this.loading = false;
     this.loadOrders();
+    this.loadCars();
   }
 
   logout(): void {
     this.loggedIn = false;
     this.orders = [];
+    this.cars = [];
     this.ordersLoading = false;
+    this.carsLoading = false;
+    this.closeCarForm();
     this.loginForm.controls.password.reset();
   }
 
   refreshOrders(): void {
     this.loadOrders();
+  }
+
+  deleteOrder(order: RentalOrder): void {
+    this.rentalStore.deleteOrder(order.id).subscribe({
+      next: () => {
+        this.orders = this.orders.filter(savedOrder => savedOrder.id !== order.id);
+        this.changeDetector.detectChanges();
+      },
+      error: () => {
+        this.loginError = 'The booking could not be deleted.';
+        this.changeDetector.detectChanges();
+      }
+    });
+  }
+
+  showAddCarForm(): void {
+    this.editingCarId = null;
+    this.carError = '';
+    this.carForm.reset();
+    this.carFormVisible = true;
+  }
+
+  editCar(car: Car): void {
+    this.editingCarId = car.id;
+    this.carError = '';
+    this.carForm.patchValue({
+      brand: car.brand,
+      model: car.model,
+      year: car.year,
+      dailyPrice: car.dailyPrice,
+    });
+    this.carFormVisible = true;
+  }
+
+  closeCarForm(): void {
+    this.carFormVisible = false;
+    this.editingCarId = null;
+    this.carError = '';
+    this.carForm.reset();
+  }
+
+  saveCar(): void {
+    this.carError = '';
+    if (this.carForm.invalid) {
+      this.carForm.markAllAsTouched();
+      return;
+    }
+
+    const values = this.carForm.getRawValue();
+    const existingCar = this.cars.find(car => car.id === this.editingCarId);
+    const carData = {
+      brand: values.brand,
+      model: values.model,
+      year: values.year!,
+      dailyPrice: values.dailyPrice!,
+      unavailablePeriods: existingCar?.unavailablePeriods ?? [],
+    };
+
+    const request = this.editingCarId === null
+      ? this.rentalStore.addCar(carData)
+      : this.rentalStore.updateCar({ id: this.editingCarId, ...carData });
+
+    request.subscribe({
+      next: savedCar => {
+        if (this.editingCarId === null) {
+          this.cars = [...this.cars, savedCar];
+        } else {
+          this.cars = this.cars.map(car => car.id === savedCar.id ? savedCar : car);
+        }
+        this.closeCarForm();
+      },
+      error: () => this.carError = 'The car could not be saved. Start the mock server first.'
+    });
   }
 
   private loadOrders(): void {
@@ -99,6 +190,22 @@ export class Admin {
         this.loginError = 'The booking service is not available. Start the mock server first.';
         this.loading = false;
         this.ordersLoading = false;
+        this.changeDetector.detectChanges();
+      }
+    });
+  }
+
+  private loadCars(): void {
+    this.carsLoading = true;
+    this.rentalStore.getCars().subscribe({
+      next: cars => {
+        this.cars = cars;
+        this.carsLoading = false;
+        this.changeDetector.detectChanges();
+      },
+      error: () => {
+        this.carError = 'The cars could not be loaded. Start the mock server first.';
+        this.carsLoading = false;
         this.changeDetector.detectChanges();
       }
     });

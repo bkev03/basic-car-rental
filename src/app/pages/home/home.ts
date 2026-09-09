@@ -1,6 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectorRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCard, MatCardModule } from '@angular/material/card';
@@ -9,7 +8,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { RentalOrder, RentalStore } from '../../shared/rental-store.service';
+import { Car, RentalOrder, RentalStore } from '../../shared/rental-store.service';
 
 @Component({
   imports: [
@@ -58,11 +57,10 @@ export class Home {
   });
 
   constructor(
-    private readonly http: HttpClient,
     private readonly rentalStore: RentalStore,
     private readonly changeDetector: ChangeDetectorRef
   ) {
-    this.http.get<Car[]>('/cars.json').subscribe({
+    this.rentalStore.getCars().subscribe({
       next: cars => {
         this.cars.push(...cars);
         this.loading = false;
@@ -185,7 +183,7 @@ export class Home {
     }
   }
 
-  private hasOverlappingOrder(carId: number, start: Date, end: Date, orders: RentalOrder[]): boolean {
+  private hasOverlappingOrder(carId: number | string, start: Date, end: Date, orders: RentalOrder[]): boolean {
     const selectedStart = this.toDateOnly(start);
     const selectedEnd = this.toDateOnly(end);
 
@@ -213,17 +211,4 @@ export class Home {
   }
 }
 
-interface Car {
-  id: number;
-  brand: string;
-  model: string;
-  year: number;
-  dailyPrice: number;
-  unavailablePeriods: DatePeriod[];
-}
-
-interface DatePeriod {
-  start: string;
-  end: string;
-}
 

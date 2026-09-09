@@ -43,6 +43,86 @@
       </div>
     </section>
 
+    <section class="cars-section">
+      <div class="section-header">
+        <h2>Cars</h2>
+        <button mat-flat-button color="primary" type="button" (click)="showAddCarForm()">
+          Add car
+        </button>
+      </div>
+
+      @if (carFormVisible) {
+        <mat-card class="car-form-card">
+          <mat-card-header>
+            <mat-card-title>{{ editingCarId === null ? 'Add car' : 'Edit car' }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form class="car-form" [formGroup]="carForm" (ngSubmit)="saveCar()">
+              <mat-form-field>
+                <mat-label>Brand</mat-label>
+                <input matInput formControlName="brand">
+                @if (carForm.controls.brand.hasError('required')) {
+                  <mat-error>Brand is required</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Model</mat-label>
+                <input matInput formControlName="model">
+                @if (carForm.controls.model.hasError('required')) {
+                  <mat-error>Model is required</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Year</mat-label>
+                <input matInput type="number" formControlName="year">
+                @if (carForm.controls.year.hasError('required')) {
+                  <mat-error>Year is required</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Daily price</mat-label>
+                <input matInput type="number" formControlName="dailyPrice">
+                @if (carForm.controls.dailyPrice.hasError('required')) {
+                  <mat-error>Daily price is required</mat-error>
+                }
+              </mat-form-field>
+              @if (carError) {
+                <p class="error-message">{{ carError }}</p>
+              }
+              <div class="car-form-actions">
+                <button mat-flat-button color="primary" type="submit">Save car</button>
+                <button mat-stroked-button type="button" (click)="closeCarForm()">Cancel</button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      @if (carsLoading) {
+        <mat-card class="empty-card">
+          <mat-card-content>Loading cars...</mat-card-content>
+        </mat-card>
+      } @else if (cars.length === 0) {
+        <mat-card class="empty-card">
+          <mat-card-content>No cars have been added yet.</mat-card-content>
+        </mat-card>
+      } @else {
+        <div class="cars-list">
+          @for (car of cars; track car.id) {
+            <mat-card class="car-card">
+              <mat-card-content>
+                <div>
+                  <strong>{{ car.brand }} {{ car.model }}</strong>
+                  <span>{{ car.year }} · {{ car.dailyPrice | currency:'EUR':'symbol':'1.0-0' }} / day</span>
+                </div>
+                <button mat-stroked-button type="button" (click)="editCar(car)">Edit</button>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      }
+    </section>
+
     @if (ordersLoading) {
       <mat-card class="empty-card">
         <mat-card-content>Loading bookings...</mat-card-content>
@@ -58,6 +138,15 @@
             <mat-card-header>
               <mat-card-title>{{ order.car }}</mat-card-title>
               <mat-card-subtitle>{{ order.startDate }} - {{ order.endDate }}</mat-card-subtitle>
+              <button
+                mat-icon-button
+                type="button"
+                class="delete-order-button"
+                aria-label="Delete booking"
+                title="Delete booking"
+                (click)="deleteOrder(order)">
+                <mat-icon>delete</mat-icon>
+              </button>
             </mat-card-header>
             <mat-card-content>
               <p><strong>Customer:</strong> {{ order.name }}</p>

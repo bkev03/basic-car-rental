@@ -1,6 +1,7 @@
 .admin-container {
     width: min(100% - 32px, 960px);
     margin: 0 auto;
+    padding-bottom: 32px;
 }
 
 .login-card,
@@ -83,6 +84,70 @@
     gap: 8px;
 }
 
+.cars-section {
+    margin-bottom: 32px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.section-header h2 {
+    margin: 0;
+}
+
+.car-form-card {
+    margin-bottom: 16px;
+    background-color: white;
+}
+
+.car-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 16px;
+}
+
+.car-form mat-form-field {
+    width: 100%;
+}
+
+.car-form .error-message,
+.car-form-actions {
+    grid-column: 1 / -1;
+}
+
+.car-form-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.cars-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.car-card {
+    background-color: white;
+}
+
+.car-card mat-card-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.car-card span {
+    display: block;
+    margin-top: 4px;
+}
+
 .orders-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -91,6 +156,17 @@
 
 .order-card {
     background-color: white;
+}
+
+.order-card mat-card-header {
+    position: relative;
+    padding-right: 48px;
+}
+
+.delete-order-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
 }
 
 @media (max-width: 640px) {
@@ -105,6 +181,28 @@
 
     .admin-actions {
         justify-content: center;
+    }
+
+    .section-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .section-header h2 {
+        text-align: center;
+    }
+
+    .section-header button {
+        align-self: center;
+    }
+
+    .car-form,
+    .cars-list {
+        grid-template-columns: 1fr;
+    }
+
+    .car-form-actions {
+        flex-wrap: wrap;
     }
 
     .orders-list {
