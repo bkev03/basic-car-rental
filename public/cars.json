@@ -1,0 +1,31 @@
+[
+  {
+    "id": 1,
+    "brand": "Toyota",
+    "model": "Corolla",
+    "year": 2022,
+    "dailyPrice": 45,
+    "unavailablePeriods": [
+      {
+        "start": "2026-09-15",
+        "end": "2026-09-18"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "brand": "Volkswagen",
+    "model": "Golf",
+    "year": 2023,
+    "dailyPrice": 50,
+    "unavailablePeriods": []
+  },
+  {
+    "id": 3,
+    "brand": "Honda",
+    "model": "Civic",
+    "year": 2022,
+    "dailyPrice": 48,
+    "unavailablePeriods": []
+  }
+]

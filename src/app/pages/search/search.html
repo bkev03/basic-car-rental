@@ -26,6 +26,26 @@
         Results
       </mat-card-header>
       <hr class="hr">
+      @if (loading) {
+        <mat-card-content>Loading cars...</mat-card-content>
+      } @else if (error) {
+        <mat-card-content>Could not load cars.</mat-card-content>
+      } @else if (!range.value.start || !range.value.end) {
+        <mat-card-content>Select a date range to see available cars.</mat-card-content>
+      } @else if (filteredCars.length === 0) {
+        <mat-card-content>No cars are available for the selected period.</mat-card-content>
+      } @else {
+        <mat-card-content>
+          <div class="table-content">
+            @for (car of filteredCars; track car.id) {
+              <p>
+                <strong>{{ car.brand }} {{ car.model }}</strong>
+                ({{ car.year }}) - {{ car.dailyPrice | currency:'EUR':'symbol':'1.0-0' }} / day
+              </p>
+            }
+          </div>
+        </mat-card-content>
+      }
     </mat-card>
   </div>
 
